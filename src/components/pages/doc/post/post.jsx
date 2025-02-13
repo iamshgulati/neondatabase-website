@@ -1,94 +1,175 @@
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 
+import ReleaseNoteList from 'components/pages/changelog/changelog-list';
+import Hero from 'components/pages/changelog/hero';
 import Breadcrumbs from 'components/pages/doc/breadcrumbs';
-import DocFooter from 'components/pages/doc/doc-footer';
-import PreviousAndNextLinks from 'components/pages/doc/previous-and-next-links';
-import TableOfContents from 'components/pages/doc/table-of-contents';
-import Hero from 'components/pages/release-notes/hero';
-// import Pagination from 'components/pages/release-notes/pagination';
-import ReleaseNoteList from 'components/pages/release-notes/release-note-list';
-// import ReleaseNotesFilter from 'components/pages/release-notes/release-notes-filter';
+import EditOnGithub from 'components/pages/doc/edit-on-github';
+import Modal from 'components/pages/doc/modal';
 import Content from 'components/shared/content';
+import DocFooter from 'components/shared/doc-footer';
+import NavigationLinks from 'components/shared/navigation-links';
+// import SidebarCta from 'components/shared/sidebar-cta';
+import TableOfContents from 'components/shared/table-of-contents';
+// import Pagination from 'components/pages/changelog/pagination';
+// import ChangelogFilter from 'components/pages/changelog/changelog-filter';
+import { DOCS_BASE_PATH } from 'constants/docs';
+import LINKS from 'constants/links';
 
-// TODO: Add pagination for release notes
-const ReleaseNotes = ({
+import Tag from '../tag';
+
+// TODO: Add pagination for changelog
+const Changelog = ({
   // currentSlug,
   items,
 }) => (
   <>
     <Hero />
-    {/* <ReleaseNotesFilter currentSlug={currentSlug} /> */}
+    {/* <ChangelogFilter currentSlug={currentSlug} /> */}
     <ReleaseNoteList className="mt-4" items={items} />
     {/* {pageCount > 1 && <Pagination currentPageIndex={currentPageIndex} pageCount={pageCount} />} */}
   </>
 );
 
-ReleaseNotes.propTypes = {
+Changelog.propTypes = {
   // currentSlug: PropTypes.string,
   items: PropTypes.arrayOf(
     PropTypes.shape({
       slug: PropTypes.string.isRequired,
-      content: PropTypes.shape({}).isRequired,
+      content: PropTypes.string.isRequired,
     })
   ).isRequired,
 };
 
+const MODALS = [
+  {
+    type: 'migrate',
+    breadcrumb: 'Migrate to Neon',
+    title: 'Migrating to Neon?',
+    description: 'Our team can help minimize downtime.',
+    link: {
+      title: 'Get migration assistance',
+      url: LINKS.migrationAssistance,
+    },
+  },
+  {
+    type: 'support',
+    breadcrumb: 'Support',
+    title: 'Need help now?',
+    description: 'Please reach out to our Support team!',
+    link: {
+      title: 'Get support',
+      url: LINKS.consoleSupport,
+    },
+  },
+];
+
 const Post = ({
-  data: { title, subtitle, enableTableOfContents = false, updatedOn = null },
+  data: { title, subtitle, enableTableOfContents = false, tag = null, updatedOn = null },
   content,
   breadcrumbs,
   navigationLinks: { previousLink, nextLink },
-  isReleaseNotes = false,
-  releaseNotes = [],
+  navigationLinksPrefix,
+  isChangelog = false,
+  isUseCase = false,
+  isPostgres = false,
+  changelogPosts = [],
   currentSlug,
   fileOriginPath,
   tableOfContents,
 }) => {
-  const lastUpdatedOn = updatedOn
-    ? new Date(updatedOn).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    : null;
+  const modal = MODALS.find((modal) =>
+    breadcrumbs.some((breadcrumb) => modal.breadcrumb === breadcrumb.title)
+  );
 
   return (
     <>
       <div
         className={clsx(
-          'col-span-6 -mx-10 flex flex-col 2xl:col-span-7 2xl:mx-5 xl:col-span-9 xl:ml-11 xl:mr-0 xl:max-w-[750px] lg:ml-0 lg:max-w-none lg:pt-0 md:mx-auto md:pb-[70px] sm:pb-8'
+          'flex flex-col lg:ml-0 lg:pt-0 md:mx-auto md:pb-[70px] sm:pb-8',
+          isUseCase
+            ? 'col-span-6 col-start-4 -mx-10 2xl:col-span-7 2xl:col-start-3 2xl:mx-0 xl:col-span-10 xl:col-start-2'
+            : 'col-span-7 col-start-2 -ml-6 max-w-[832px] 3xl:ml-0 2xl:col-span-8 2xl:col-start-1 lg:max-w-full'
         )}
       >
-        {breadcrumbs.length > 0 && <Breadcrumbs breadcrumbs={breadcrumbs} />}
-        {isReleaseNotes ? (
-          <ReleaseNotes currentSlug={currentSlug} items={releaseNotes} />
+        {breadcrumbs.length > 0 && (
+          <Breadcrumbs
+            breadcrumbs={breadcrumbs}
+            currentSlug={currentSlug}
+            isPostgresPost={isPostgres}
+          />
+        )}
+        {isChangelog ? (
+          <Changelog currentSlug={currentSlug} items={changelogPosts} />
         ) : (
           <article>
-            <h1 className="text-[36px] font-semibold leading-tight xl:text-3xl">{title}</h1>
+            <h1
+              className={clsx(
+                'font-semibold leading-tight tracking-extra-tight',
+                isUseCase
+                  ? 'text-[56px] xl:text-5xl lg:text-4xl md:text-[28px] md:leading-tight'
+                  : 'text-[36px] xl:text-3xl',
+                tag && 'inline'
+              )}
+            >
+              {title}
+            </h1>
+            {tag && <Tag className="relative -top-1.5 ml-3 inline" label={tag} />}
             {subtitle && (
               <p className="my-2 text-xl leading-tight text-gray-new-40 dark:text-gray-new-80">
                 {subtitle}
               </p>
             )}
-            <Content className="mt-5" content={content} />
-            {lastUpdatedOn && (
-              <p className="text-gray-new-40 text-sm dark:text-gray-new-80 mt-10">
-                Last updated on <time dateTime={updatedOn}>{lastUpdatedOn}</time>
-              </p>
-            )}
+            <Content
+              className="mt-5"
+              content={content}
+              isUseCase={isUseCase}
+              isPostgres={isPostgres}
+            />
           </article>
         )}
 
-        <PreviousAndNextLinks previousLink={previousLink} nextLink={nextLink} />
-        <DocFooter fileOriginPath={fileOriginPath} slug={currentSlug} />
+        {!isChangelog && (
+          <NavigationLinks
+            previousLink={previousLink}
+            nextLink={nextLink}
+            basePath={navigationLinksPrefix || DOCS_BASE_PATH}
+          />
+        )}
+        <DocFooter updatedOn={updatedOn} slug={currentSlug} />
       </div>
 
-      <div className={clsx('col-start-11 col-end-13 -ml-11 h-full 2xl:ml-0 xl:hidden')}>
-        <nav className="no-scrollbars sticky bottom-10 top-10 max-h-[calc(100vh-80px)] overflow-y-auto overflow-x-hidden">
-          {enableTableOfContents && <TableOfContents items={tableOfContents} />}
-        </nav>
+      <div
+        className={clsx(
+          'relative col-span-2 -ml-12 max-w-64 xl:hidden',
+          isUseCase
+            ? 'col-start-11 2xl:col-span-3 2xl:col-start-10 2xl:ml-auto 2xl:max-w-[238px]'
+            : 'col-start-10 3xl:-ml-20 2xl:col-span-4 2xl:col-start-9 2xl:ml-6'
+        )}
+      >
+        <div
+          className={clsx(
+            'sticky flex flex-col pb-5',
+            isUseCase
+              ? 'top-[188px] max-h-[calc(100vh-188px)]'
+              : 'top-[136px] max-h-[calc(100vh-136px)]'
+          )}
+        >
+          {enableTableOfContents && (
+            <TableOfContents items={tableOfContents} isUseCase={isUseCase} />
+          )}
+          <div
+            className={clsx(
+              enableTableOfContents &&
+                'mt-2.5 w-56 shrink-0 border-t border-gray-new-90 pt-4 dark:border-gray-new-15/70'
+            )}
+          >
+            {!isUseCase && <EditOnGithub fileOriginPath={fileOriginPath} />}
+          </div>
+        </div>
       </div>
+
+      {modal && <Modal {...modal} />}
     </>
   );
 };
@@ -98,19 +179,23 @@ Post.propTypes = {
     title: PropTypes.string,
     subtitle: PropTypes.string,
     enableTableOfContents: PropTypes.bool,
+    tag: PropTypes.string,
     updatedOn: PropTypes.string,
   }).isRequired,
-  content: PropTypes.shape({}).isRequired,
+  content: PropTypes.string.isRequired,
   breadcrumbs: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   navigationLinks: PropTypes.exact({
     previousLink: PropTypes.shape({}),
     nextLink: PropTypes.shape({}),
   }).isRequired,
-  isReleaseNotes: PropTypes.bool,
-  releaseNotes: PropTypes.arrayOf(
+  navigationLinksPrefix: PropTypes.string,
+  isChangelog: PropTypes.bool,
+  isUseCase: PropTypes.bool,
+  isPostgres: PropTypes.bool,
+  changelogPosts: PropTypes.arrayOf(
     PropTypes.shape({
       slug: PropTypes.string,
-      content: PropTypes.shape({}),
+      content: PropTypes.string,
     })
   ),
   currentSlug: PropTypes.string.isRequired,

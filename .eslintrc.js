@@ -9,10 +9,12 @@ module.exports = {
     'airbnb/whitespace',
     'prettier',
     'plugin:@next/next/recommended',
+    'plugin:cypress/recommended',
   ],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
+    zaraz: true,
   },
   parserOptions: {
     ecmaFeatures: {
