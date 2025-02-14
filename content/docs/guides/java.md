@@ -5,7 +5,7 @@ enableTableOfContents: true
 redirectFrom:
   - /docs/quickstart/java
   - /docs/integrations/java
-updatedOn: '2023-08-05T08:44:53Z'
+updatedOn: '2025-02-03T20:41:57.315Z'
 ---
 
 This guide describes how to create a Neon project and connect to it with Java Database Connectivity (JDBC) or from a Spring Data project that uses JDBC.
@@ -34,17 +34,10 @@ To create a Neon project:
 For a JDBC connection URL, replace the variables in the following URL string with your Neon project ID, database name, user, and password:
 
 ```java
-jdbc:postgresql://<hostname>/<dbname>?user=<user>&password=<password>
+jdbc:postgresql://[neon_hostname]/[dbname]?user=[user]&password=[password]&sslmode=require
 ```
 
-where:
-
-- `<hostname>` the hostname of the branch's compute endpoint. The hostname has an `ep-` prefix and appears similar to this: `ep-tight-salad-272396.us-east-2.aws.neon.tech`.
-- `<dbname>` is the name of the database. The default Neon database is `neondb`.
-- `<user>` is the database user.
-- `<password>` is the database user's password.
-
-You can find all of the connection details listed above in the **Connection Details** widget on the Neon **Dashboard**. For more information, see [Connect from any application](/docs/connect/connect-from-any-app).
+You can find your database connection string by clicking the **Connect** button on your **Project Dashboard** to open the **Connect to your database** modal. For more information, see [Connect from any application](/docs/connect/connect-from-any-app).
 
 ## Connect from Spring Data
 
@@ -53,11 +46,9 @@ Spring Data relies on JDBC and Postgres drivers to connect to Postgres databases
 Connecting from a Spring Data project requires specifying the datasource URL in your `application.properties` file, as shown in the following example:
 
 ```java
-spring.datasource.url=jdbc:postgresql://<hostname>/<dbname>?user=<user>&password=<password>
+spring.datasource.url=jdbc:postgresql://[neon_hostname]/[dbname]?user=[user]&password=[password]&sslmode=require
 ```
 
 Refer to the [Connect with JDBC](#connect-with-jdbc) section above for information about obtaining connection details for your Neon database.
 
-## Need help?
-
-Send a request to [support@neon.tech](mailto:support@neon.tech), or join the [Neon community forum](https://community.neon.tech/).
+<NeedHelp/>

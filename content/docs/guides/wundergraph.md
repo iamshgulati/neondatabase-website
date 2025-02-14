@@ -4,7 +4,7 @@ subtitle: Leverage the power of Neon and WunderGraph to build fully serverless a
   minutes
 enableTableOfContents: true
 isDraft: false
-updatedOn: '2023-10-04T13:12:25.661Z'
+updatedOn: '2024-10-22T15:41:04.377Z'
 ---
 
 _This guide was contributed by the team at WunderGraph_
@@ -126,7 +126,7 @@ code .
    // Add your neon datasource
    const neon = introspect.postgresql({
      apiNamespace: 'neon',
-     //Your database URL can be found in the Neon console
+     //Your database URL can be found in the Neon Console
      databaseURL: new EnvironmentVariable('NEON_DATABASE_URL'),
    });
 
@@ -280,7 +280,7 @@ const Home: NextPage = () => {
               target="_blank"
               href="https://github.com/wundergraph/wundergraph"
             >
-              Github
+              GitHub
             </a>{' '}
             to learn more about WunderGraph.
           </p>
@@ -323,6 +323,4 @@ If you had trouble with any of the steps outlined above, refer to the video guid
 
 <YoutubeIframe embedId="JqOADpG5q-s" />
 
-## Need help?
-
-Send a request to [support@neon.tech](mailto:support@neon.tech), or join the [Neon community forum](https://community.neon.tech/).
+<NeedHelp/>
