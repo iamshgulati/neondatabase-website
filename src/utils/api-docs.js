@@ -1,28 +1,29 @@
 const fs = require('fs');
-const path = require('path');
 
 const { glob } = require('glob');
 const matter = require('gray-matter');
 const jsYaml = require('js-yaml');
-const slugify = require('slugify');
 
-const { RELEASE_NOTES_DIR_PATH } = require('../constants/docs');
+const { DOCS_DIR_PATH, CHANGELOG_DIR_PATH } = require('../constants/content');
 
 const getExcerpt = require('./get-excerpt');
-const parseMDXHeading = require('./parse-mdx-heading');
-
-const DOCS_DIR_PATH = 'content/docs';
 
 const getPostSlugs = async (pathname) => {
   const files = await glob.sync(`${pathname}/**/*.md`, {
-    ignore: ['**/RELEASE_NOTES_TEMPLATE.md', '**/README.md', '**/unused/**'],
+    ignore: [
+      '**/RELEASE_NOTES_TEMPLATE.md',
+      '**/README.md',
+      '**/unused/**',
+      '**/shared-content/**',
+      '**/GUIDE_TEMPLATE.md',
+    ],
   });
   return files.map((file) => file.replace(pathname, '').replace('.md', ''));
 };
 
 const getPostBySlug = (slug, pathname) => {
   try {
-    const source = fs.readFileSync(`${pathname}/${slug}.md`);
+    const source = fs.readFileSync(`${process.cwd()}/${pathname}/${slug}.md`, 'utf-8');
     const { data, content } = matter(source);
     const excerpt = getExcerpt(content, 200);
 
@@ -50,90 +51,55 @@ const getAllPosts = async () => {
 };
 
 const getSidebar = () =>
-  jsYaml.load(fs.readFileSync(path.resolve('content/docs/sidebar.yaml'), 'utf8'));
+  jsYaml.load(fs.readFileSync(`${process.cwd()}/${DOCS_DIR_PATH}/sidebar.yaml`, 'utf8'));
 
-const getBreadcrumbs = (slug, flatSidebar) => {
-  const path = flatSidebar.find((item) => item.slug === slug)?.path;
-  const arr = [];
-  if (path) {
-    path.reduce((prev, cur) => {
-      const current = prev[cur] || prev.items[cur];
-      arr.push({ title: current.title, slug: current.slug });
-      return current;
-    }, getSidebar());
+const getNavigationLinks = (slug, flatSidebar) => {
+  const posts = [
+    ...new Map(flatSidebar.filter((item) => item.slug).map((item) => [item.slug, item])).values(),
+  ];
+  const currentItemIndex = posts.findIndex((item) => item.slug === slug);
 
-    return arr.slice(0, -1);
-  }
+  const previousItem = posts[currentItemIndex - 1];
+  const nextItem = posts[currentItemIndex + 1];
 
-  return [];
+  return {
+    previousLink: { title: previousItem?.title, slug: previousItem?.slug },
+    nextLink: { title: nextItem?.title, slug: nextItem?.slug },
+  };
 };
 
-const getFlatSidebar = (sidebar, path = []) =>
-  sidebar.reduce((acc, item, index) => {
-    const current = { title: item.title, slug: item.slug, path: [...path, index] };
-    if (item.items) {
-      return [...acc, current, ...getFlatSidebar(item.items, current.path)];
-    }
-    return [...acc, { ...item, path: [...path, index] }];
-  }, []);
-
-const getDocPreviousAndNextLinks = (slug, flatSidebar) => {
-  const items = flatSidebar.filter((item) => item.slug !== undefined);
-  const currentItemIndex = items.findIndex((item) => item.slug === slug);
-  const previousItem = items[currentItemIndex - 1];
-  const nextItem = items[currentItemIndex + 1];
-
-  return { previousLink: previousItem, nextLink: nextItem };
-};
-
-const getAllReleaseNotes = async () => {
-  const slugs = await getPostSlugs(RELEASE_NOTES_DIR_PATH);
+const getAllChangelogs = async () => {
+  const slugs = await getPostSlugs(CHANGELOG_DIR_PATH);
 
   return slugs
     .map((slug) => {
-      if (!getPostBySlug(slug, RELEASE_NOTES_DIR_PATH)) return;
-      const post = getPostBySlug(slug, RELEASE_NOTES_DIR_PATH);
-      const { data, content } = post;
+      if (!getPostBySlug(slug, CHANGELOG_DIR_PATH)) return;
+      const {
+        data: { title, isDraft, redirectFrom },
+        content,
+      } = getPostBySlug(slug, CHANGELOG_DIR_PATH);
+      const slugWithoutFirstSlash = slug.slice(1);
+      const date = slugWithoutFirstSlash;
 
-      return { slug: slug.replace('/', ''), isDraft: data?.isDraft, content };
+      // eslint-disable-next-line consistent-return
+      return {
+        title: title || content.match(/# (.*)/)?.[1],
+        slug: slugWithoutFirstSlash,
+        category: 'changelog',
+        date,
+        content,
+        isDraft,
+        redirectFrom,
+      };
     })
     .filter((item) => process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' || !item.isDraft);
-};
-
-const getTableOfContents = (content) => {
-  const headings = content.match(/(#+)\s(.*)/g) || [];
-  const arr = headings.map((item) => item.replace(/(#+)\s/, '$1 '));
-
-  const toc = [];
-
-  arr.forEach((item) => {
-    const [depth, title] = parseMDXHeading(item);
-
-    // replace mdx inline code with html inline code
-    const titleWithInlineCode = title.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-    if (title && depth && depth <= 2) {
-      toc.push({
-        title: titleWithInlineCode,
-        id: slugify(title, { lower: true, strict: true, remove: /[*+~.()'"!:@]/g }),
-        level: depth + 1,
-      });
-    }
-  });
-
-  return toc;
 };
 
 module.exports = {
   getPostSlugs,
   getPostBySlug,
   getSidebar,
-  getBreadcrumbs,
-  getFlatSidebar,
-  getDocPreviousAndNextLinks,
-  getAllReleaseNotes,
+  getNavigationLinks,
+  getAllChangelogs,
   getAllPosts,
-  getTableOfContents,
-  DOCS_DIR_PATH,
-  RELEASE_NOTES_DIR_PATH,
 };

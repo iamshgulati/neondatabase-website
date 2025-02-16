@@ -1,22 +1,57 @@
 ---
 title: Neon and Vercel overview
-subtitle: Learn about different ways you can integrate Neon and Vercel
+subtitle: Learn about different options for integrating Neon with Vercel
+redirectFrom:
+  - /docs/guides/vercel-postgres
 enableTableOfContents: true
 isDraft: false
-updatedOn: '2023-07-01T08:51:49Z'
+updatedOn: '2025-02-13T13:15:08.386Z'
 ---
 
-Neon supports several options for integrating with Vercel:
+Neon supports different options for integrating Neon and Vercel, including a native integration that you can install from the Vercel Marketplace, a "previews integration" that creates a database branch with every pull request, and a manual setup option. If you're currently a Vercel Postgres user, you'll also find information below about the upcoming transition from Vercel Postgres to Neon.
 
-- [Vercel Postgres](/docs/guides/vercel-postgres)
-  
-  Vercel Postgres is serverless Postgres **powered by Neon**. This integration allows you to seamlessly create and manage a serverless Postgres instance from the Vercel dashboard. A Neon account is not required.
-- [The Neon Vercel Integration](/docs/guides/vercel)
-  
-  You can find the Neon Vercel Integration on the [Vercel Integration Marketplace](https://vercel.com/integrations/neon). The integration connects your Vercel project to a Neon database and uses Neon's branching capability to create a database branch for each preview deployment.
-- [The Neon serverless driver](/docs/serverless/serverless-driver)
-  
-  The Neon serverless driver allows you to query data from [Vercel Edge Functions](https://vercel.com/docs/concepts/functions/edge-functions) and is a drop-in replacement for [node-postgres](https://node-postgres.com/), the popular npm `pg` package.  
-- [Connect Vercel and Neon manually](/docs/guides/vercel-manual)
-  
-  This method involves setting Vercel environment variables to connect your Vercel Project to your Neon database.
+## Option 1: Add the Native Integration on Vercel
+
+This integration is intended for Vercel users who want to add Neon Postgres to their Vercel project as a [first-party native integration](https://vercel.com/docs/integrations/install-an-integration/product-integration). The integration creates a Neon Postgres account for you if you do not have one. You get access to Neon features and plans. **Billing is managed through Vercel**.
+
+<DetailIconCards>
+
+<a href="/docs/guides/vercel-native-integration" description="Learn how to install the Neon Postgres Native Integration from the Vercel Marketplace" icon="vercel">Vercel Native Integration</a>
+
+</DetailIconCards>
+
+## Option 2: Add the Postgres Previews Integration
+
+This integration is intended for users who are registered with Neon directly. The **Postgres Previews Integration** is a [connectable account integration](https://vercel.com/docs/integrations/install-an-integration/add-a-connectable-account#manage-connectable-accounts) that connects your Vercel project to a Neon database and creates a database branch with each Vercel preview deployment.
+
+<DetailIconCards>
+
+<a href="/docs/guides/vercel-previews-integration" description="Learn how to install the Neon Postgres Preview Integration for a database branch with each preview deployment" icon="vercel">Neon Previews Integration</a>
+
+</DetailIconCards>
+
+## Option 3: Connect your Vercel project to Neon manually (no integration)
+
+This setup simply involves setting environment variables in Vercel to connect your Vercel Project to your Neon database.
+
+<DetailIconCards>
+
+<a href="/docs/guides/vercel-manual" description="Connect your Vercel project to Neon manually (no integration)" icon="vercel">Connect Vercel and Neon manually</a>
+
+</DetailIconCards>
+
+## Transitioning from Vercel Postgres?
+
+<Admonition type="important">
+**Vercel has now completed transitioning almost all Vercel Postgres stores to the Native Vercel Integration for Neon Postgres.**
+
+You can now manage your databases via the Native Vercel Integration from the **Storage** tab on your Vercel Dashboard and in the Neon Console.
+</Admonition>
+
+For those who have transitioned from Vercel Postgres to Neon, welcome! We're glad you're here. We've prepared a **transition guide** to answer questions and help you get started.
+
+<DetailIconCards>
+
+<a href="/docs/guides/vercel-postgres-transition-guide" description="Everything you need to know about transitioning from Vercel Postgres to Neon" icon="vercel">Vercel Postgres Transition Guide</a>
+
+</DetailIconCards>

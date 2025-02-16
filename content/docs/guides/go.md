@@ -5,7 +5,7 @@ enableTableOfContents: true
 redirectFrom:
   - /docs/quickstart/go
   - /docs/integrations/go
-updatedOn: '2023-08-05T08:44:53Z'
+updatedOn: '2025-02-03T20:41:57.314Z'
 ---
 
 To connect to Neon from a Go application:
@@ -44,13 +44,13 @@ import (
 )
 
 func main() {
-    connStr := "user=<user> password=<password> dbname=neondb host=<hostname>"
+    connStr := "postgresql://[user]:[password]@[neon_hostname]/[dbname]?sslmode=require"
     db, err := sql.Open("postgres", connStr)
     if err != nil {
         panic(err)
     }
     defer db.Close()
-    
+
     var version string
     if err := db.QueryRow("select version()").Scan(&version); err != nil {
         panic(err)
@@ -60,15 +60,6 @@ func main() {
 }
 ```
 
-where:
+You can find your database connection details by clicking the **Connect** button on your **Project Dashboard**. For more information, see [Connect from any application](/docs/connect/connect-from-any-app).
 
-- `<user>` is the database user.
-- `<password>` is the database user's password.
-- `<dbname>` is the name of the database. The default Neon database is `neondb`.
-- `<hostname>` is the hostname of the branch's compute endpoint. The hostname has an `ep-` prefix and appears similar to this: `ep-tight-salad-272396.us-east-2.aws.neon.tech`.
-
-You can find all of the connection details listed above in the **Connection Details** widget on the Neon **Dashboard**. For more information, see [Connect from any application](/docs/connect/connect-from-any-app).
-
-## Need help?
-
-Send a request to [support@neon.tech](mailto:support@neon.tech), or join the [Neon community forum](https://community.neon.tech/).
+<NeedHelp/>
